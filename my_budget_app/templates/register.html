@@ -1,0 +1,490 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="container">
+        <!-- ЗАГОЛОВОК С БЕЗОПАСНОСТЬЮ -->
+        <div class="security-header mb-5">
+            <div class="text-center">
+                <h1 class="display-4 fw-bold text-white mb-3">
+                    <i class="fas fa-user-plus me-3 floating"></i>Регистрация
+                </h1>
+                <p class="lead text-light fs-4">
+                    Создайте аккаунт для начала работы с AkysayaAPP
+                </p>
+                
+                <!-- Безопасность -->
+                <div class="security-badge mt-4">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    <span>Ваши данные защищены шифрованием банковского уровня</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ОСНОВНАЯ ФОРМА -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="card border-0 shadow-lg register-card form-window" style="border-radius: 25px; overflow: hidden;">
+                    <div class="card-body p-5">
+                        <form method="POST" id="registerForm">
+                            <!-- Имя пользователя -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold fs-5 mb-3">
+                                    <i class="fas fa-user-tag me-2"></i>Имя пользователя
+                                </label>
+                                <input type="text" 
+                                       class="form-control form-control-lg py-3 px-4 input-field" 
+                                       name="username" 
+                                       placeholder="Придумайте уникальное имя"
+                                       style="border-radius: 15px; font-size: 1.1rem;"
+                                       required>
+                                <div class="form-text mt-2">
+                                    Это имя будет использоваться для входа в систему
+                                </div>
+                            </div>
+                            
+                            <!-- Пароль -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold fs-5 mb-3">
+                                    <i class="fas fa-key me-2"></i>Пароль
+                                </label>
+                                <input type="password" 
+                                       class="form-control form-control-lg py-3 px-4 input-field" 
+                                       id="password" 
+                                       name="password" 
+                                       placeholder="Минимум 8 символов"
+                                       style="border-radius: 15px; font-size: 1.1rem;"
+                                       required>
+                                
+                                <!-- Индикатор сложности пароля -->
+                                <div class="mt-3">
+                                    <div class="progress" style="height: 10px; border-radius: 5px; background: #e9ecef;">
+                                        <div id="strengthBar" class="progress-bar" style="width: 0%; transition: width 0.3s ease;"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <small id="strengthText" class="text-muted">Сложность пароля</small>
+                                        <small id="passwordRules" class="text-muted">
+                                            <span id="lengthRule">8+ симв.</span> • 
+                                            <span id="upperRule">A-Z</span> • 
+                                            <span id="numberRule">0-9</span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Подтверждение пароля -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold fs-5 mb-3">
+                                    <i class="fas fa-check-circle me-2"></i>Подтвердите пароль
+                                </label>
+                                <input type="password" 
+                                       class="form-control form-control-lg py-3 px-4 input-field" 
+                                       id="confirm_password" 
+                                       name="confirm_password" 
+                                       placeholder="Повторите пароль"
+                                       style="border-radius: 15px; font-size: 1.1rem;"
+                                       required>
+                                <div id="passwordMatch" class="mt-2"></div>
+                            </div>
+                            
+                            <!-- Простая капча -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold fs-5 mb-3">
+                                    <i class="fas fa-robot me-2"></i>Подтвердите что вы человек
+                                </label>
+                                <p class="fs-4 mb-3">Сколько будет 3 + 4?</p>
+                                <input type="number" 
+                                       class="form-control form-control-lg py-3 px-4 text-center fw-bold input-field" 
+                                       name="captcha" 
+                                       placeholder="Введите ответ"
+                                       style="border-radius: 15px; font-size: 1.2rem; max-width: 200px; margin: 0 auto;"
+                                       required>
+                            </div>
+                            
+                            <!-- Соглашение -->
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" 
+                                           type="checkbox" 
+                                           id="terms" 
+                                           required
+                                           style="width: 22px; height: 22px;">
+                                    <label class="form-check-label ms-2 fs-5" for="terms">
+                                        Я согласен с 
+                                        <a href="#" class="text-decoration-none fw-bold text-primary">условиями использования</a> 
+                                        и 
+                                        <a href="#" class="text-decoration-none fw-bold text-primary">политикой конфиденциальности</a>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Кнопка регистрации -->
+                            <div class="d-grid gap-2 mb-4">
+                                <button type="submit" 
+                                        class="btn btn-success btn-lg py-3 fs-4 fw-bold register-btn wave-effect"
+                                        style="border-radius: 15px;">
+                                    <i class="fas fa-check me-3"></i>Создать аккаунт
+                                </button>
+                            </div>
+                            
+                            <!-- Разделитель -->
+                            <div class="position-relative my-5">
+                                <hr class="w-100" style="border-color: #dee2e6;">
+                                <span class="position-absolute top-50 start-50 translate-middle px-4 fs-5 text-muted bg-transparent">
+                                    Или
+                                </span>
+                            </div>
+                            
+                            <!-- Ссылка на вход -->
+                            <div class="text-center">
+                                <p class="fs-4 mb-3">Уже есть аккаунт?</p>
+                                <a href="{{ url_for('login') }}" 
+                                   class="btn btn-outline-primary btn-lg py-3 fs-4 fw-bold w-100 login-link wave-effect"
+                                   style="border-radius: 15px;">
+                                    <i class="fas fa-sign-in-alt me-3"></i>Войти в существующий аккаунт
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ О БЕЗОПАСНОСТИ -->
+                <div class="text-center mt-5 pt-4 security-frame">
+                    <div class="row">
+                        <div class="col-4">
+                            <i class="fas fa-lock text-success fs-2 mb-2"></i>
+                            <h6 class="mb-1">Шифрование</h6>
+                            <small>Банковский уровень</small>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-shield-alt text-primary fs-2 mb-2"></i>
+                            <h6 class="mb-1">Безопасность</h6>
+                            <small>GDPR стандарт</small>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-user-shield text-warning fs-2 mb-2"></i>
+                            <h6 class="mb-1">Конфиденциальность</h6>
+                            <small>Данные защищены</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Специфичные стили для страницы регистрации */
+    .security-header {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 3rem 0;
+        text-align: center;
+        border-radius: 0 0 25px 25px;
+        margin-top: -1.5rem;
+        margin-left: -1.5rem;
+        margin-right: -1.5rem;
+    }
+    
+    .security-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 12px 25px;
+        border-radius: 50px;
+        color: white;
+        font-size: 1.1rem;
+    }
+    
+    .register-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 2px solid transparent;
+        margin-top: 2rem;
+    }
+    
+    .register-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+        border-color: rgba(40, 167, 69, 0.3);
+    }
+    
+    .form-control-lg {
+        font-size: 1.2rem !important;
+        padding: 1rem 1.5rem !important;
+    }
+    
+    .register-btn {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .register-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+    }
+    
+    .login-link {
+        transition: all 0.3s ease;
+        border-width: 2px;
+    }
+    
+    .login-link:hover {
+        transform: translateY(-3px);
+        background: #667eea !important;
+        color: white !important;
+    }
+    
+    #passwordRules span {
+        transition: all 0.3s ease;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+    
+    .valid {
+        color: #28a745 !important;
+        font-weight: bold;
+        background: rgba(40, 167, 69, 0.1);
+    }
+    
+    .invalid {
+        color: #dc3545 !important;
+        background: rgba(220, 53, 69, 0.1);
+    }
+    
+    .display-4 {
+        font-size: 3.5rem;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Темная тема */
+    .dark-mode .register-card {
+        background: rgba(30, 41, 59, 0.95);
+    }
+    
+    .dark-mode .form-check-label {
+        color: #f1f5f9 !important;
+    }
+    
+    .dark-mode .text-dark {
+        color: #f1f5f9 !important;
+    }
+    
+    .dark-mode .form-label {
+        color: #f1f5f9 !important;
+    }
+    
+    .dark-mode .form-text {
+        color: #94a3b8 !important;
+    }
+    
+    .dark-mode .security-header {
+        background: rgba(0, 0, 0, 0.2);
+    }
+    
+    .dark-mode .security-badge {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .dark-mode #passwordRules span.valid {
+        background: rgba(40, 167, 69, 0.2);
+    }
+    
+    .dark-mode #passwordRules span.invalid {
+        background: rgba(220, 53, 69, 0.2);
+    }
+    
+    /* Анимации */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .security-header {
+            padding: 2rem 0;
+        }
+        
+        .display-4 {
+            font-size: 2.5rem;
+        }
+        
+        .lead {
+            font-size: 1.2rem;
+        }
+        
+        .security-badge {
+            font-size: 1rem;
+            padding: 10px 20px;
+        }
+        
+        .card-body {
+            padding: 2rem !important;
+        }
+        
+        .register-card:hover {
+            transform: scale(1.01);
+        }
+    }
+</style>
+
+{% block scripts %}
+<script>
+    // Проверка сложности пароля
+    const passwordInput = document.getElementById('password');
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthText = document.getElementById('strengthText');
+    const confirmInput = document.getElementById('confirm_password');
+    const matchDiv = document.getElementById('passwordMatch');
+    const lengthRule = document.getElementById('lengthRule');
+    const upperRule = document.getElementById('upperRule');
+    const numberRule = document.getElementById('numberRule');
+
+    function checkPasswordRules(password) {
+        // Проверка длины
+        if (password.length >= 8) {
+            lengthRule.classList.remove('invalid');
+            lengthRule.classList.add('valid');
+        } else {
+            lengthRule.classList.remove('valid');
+            lengthRule.classList.add('invalid');
+        }
+        
+        // Проверка заглавной буквы
+        if (/[A-Z]/.test(password)) {
+            upperRule.classList.remove('invalid');
+            upperRule.classList.add('valid');
+        } else {
+            upperRule.classList.remove('valid');
+            upperRule.classList.add('invalid');
+        }
+        
+        // Проверка цифры
+        if (/\d/.test(password)) {
+            numberRule.classList.remove('invalid');
+            numberRule.classList.add('valid');
+        } else {
+            numberRule.classList.remove('valid');
+            numberRule.classList.add('invalid');
+        }
+    }
+
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        let strength = 0;
+        
+        // Критерии сложности
+        if (password.length >= 8) strength += 33;
+        if (/[A-Z]/.test(password)) strength += 33;
+        if (/\d/.test(password)) strength += 34;
+        
+        strengthBar.style.width = strength + '%';
+        
+        // Цвет и текст
+        if (strength < 50) {
+            strengthBar.className = 'progress-bar bg-danger';
+            strengthText.textContent = 'Слабый пароль';
+            strengthText.className = 'text-danger';
+        } else if (strength < 90) {
+            strengthBar.className = 'progress-bar bg-warning';
+            strengthText.textContent = 'Средний пароль';
+            strengthText.className = 'text-warning';
+        } else {
+            strengthBar.className = 'progress-bar bg-success';
+            strengthText.textContent = 'Надёжный пароль';
+            strengthText.className = 'text-success';
+        }
+        
+        checkPasswordRules(password);
+        checkPasswordMatch();
+    });
+
+    // Проверка совпадения паролей
+    confirmInput.addEventListener('input', checkPasswordMatch);
+    
+    function checkPasswordMatch() {
+        if (passwordInput.value && confirmInput.value) {
+            if (passwordInput.value === confirmInput.value) {
+                matchDiv.innerHTML = '<div class="alert alert-success py-2"><i class="fas fa-check-circle me-2"></i> Пароли совпадают</div>';
+            } else {
+                matchDiv.innerHTML = '<div class="alert alert-danger py-2"><i class="fas fa-times-circle me-2"></i> Пароли не совпадают</div>';
+            }
+        } else {
+            matchDiv.innerHTML = '';
+        }
+    }
+
+    // Простая капча (3 + 4 = 7)
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        const password = passwordInput.value;
+        const confirmPassword = confirmInput.value;
+        const captcha = document.querySelector('input[name="captcha"]').value;
+        
+        // Проверка пароля
+        if (password.length < 8) {
+            e.preventDefault();
+            showNotification('Пароль должен содержать минимум 8 символов!', 'error');
+            return;
+        }
+        
+        if (!/[A-Z]/.test(password)) {
+            e.preventDefault();
+            showNotification('Пароль должен содержать хотя бы одну заглавную букву!', 'error');
+            return;
+        }
+        
+        if (!/\d/.test(password)) {
+            e.preventDefault();
+            showNotification('Пароль должен содержать хотя бы одну цифру!', 'error');
+            return;
+        }
+        
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            showNotification('Пароли не совпадают!', 'error');
+            return;
+        }
+        
+        // Простая капча
+        if (captcha !== '7') {
+            e.preventDefault();
+            showNotification('Неверный ответ капчи! Ответ должен быть числом "7".', 'error');
+            return false;
+        }
+        
+        // Показываем анимацию загрузки
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span class="spinner" style="width: 20px; height: 20px;"></span> Регистрация...';
+        submitBtn.disabled = true;
+        
+        // Восстанавливаем кнопку через 3 секунды (на случай ошибки)
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 3000);
+    });
+
+    // Анимация при наведении на поля
+    document.querySelectorAll('.input-field').forEach(input => {
+        input.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+        });
+        
+        input.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

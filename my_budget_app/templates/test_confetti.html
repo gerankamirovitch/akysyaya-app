@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <h1 class="gradient-text" style="font-size: 2.5rem;">Тестирование анимаций</h1>
+    
+    <div class="row mt-5">
+        <div class="col-md-4 mb-3">
+            <button class="btn btn-primary btn-lg w-100 wave-effect" onclick="celebrateAchievement()">
+                <i class="fas fa-birthday-cake me-2"></i>Конфетти
+            </button>
+        </div>
+        <div class="col-md-4 mb-3">
+            <button class="btn btn-success btn-lg w-100 wave-effect" onclick="toggleGlobe()">
+                <i class="fas fa-globe me-2"></i>3D Глобус
+            </button>
+        </div>
+        <div class="col-md-4 mb-3">
+            <button class="btn btn-warning btn-lg w-100 wave-effect" onclick="toggleTheme('neon')">
+                <i class="fas fa-lightbulb me-2"></i>Неоновая тема
+            </button>
+        </div>
+    </div>
+    
+    <div class="glass-card p-5 mt-5 scale-in">
+        <h3>Демонстрация анимаций</h3>
+        <p class="lead">Нажмите кнопки выше чтобы увидеть разные анимации</p>
+        
+        <div class="mt-4">
+            <div class="animated-number h2" id="demo-number">1000</div>
+            <button class="btn btn-info mt-3 wave-effect" onclick="animateNumber(document.getElementById('demo-number'), 1000, 5000)">
+                Анимировать число
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleGlobe() {
+        const globeContainer = document.getElementById('globe-container');
+        if (globeContainer) {
+            globeContainer.style.display = globeContainer.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+</script>
+{% endblock %}

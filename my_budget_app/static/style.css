@@ -1,0 +1,607 @@
+:root {
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    --card-bg: rgba(255, 255, 255, 0.95);
+}
+
+body.dark-mode {
+    --text-primary: #ffffff;
+    --text-secondary: #cbd5e1;
+    --card-bg: rgba(20, 20, 30, 0.95);
+}
+
+
+/* Оптимизация производительности */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ускорение анимаций */
+.will-change-transform {
+    will-change: transform;
+}
+
+.hardware-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 50px;
+    overflow-x: hidden;
+}
+
+/* Анимированный фон с частицами (оптимизированный) */
+#particles-js {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -2;
+    pointer-events: none;
+}
+
+/* Темы времени суток */
+body.theme-morning {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+body.theme-day {
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+}
+
+body.theme-evening {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+body.theme-night {
+    background: linear-gradient(135deg, #0f0f21 0%, #1a1a3a 50%, #111130 100%);
+}
+
+/* Специальные темы */
+body.theme-neon {
+    background: linear-gradient(135deg, #0f0f21 0%, #1a0033 100%);
+}
+
+body.theme-pastel {
+    background: linear-gradient(135deg, #ffd6e7 0%, #c1f0ff 100%);
+}
+
+body.theme-techno {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+body.theme-nature {
+    background: linear-gradient(135deg, #2d5016 0%, #7b9e60 100%);
+}
+
+/* Навбар (только для главной) */
+.navbar-glass {
+    background: rgba(59, 89, 152, 0.85) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.navbar-glass:hover {
+    background: rgba(59, 89, 152, 0.95) !important;
+}
+
+.navbar-brand {
+    color: #ffffff !important;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.navbar-nav .nav-link {
+    color: #ffffff !important;
+    font-weight: 500;
+}
+
+.navbar-nav .btn {
+    color: #ffffff;
+    border-color: #ffffff;
+}
+
+.navbar-nav .btn:hover {
+    background: #ffffff;
+    color: #2c3e50;
+}
+
+/* Овальные кнопки */
+.btn-oval {
+    border-radius: 25px !important;
+    transition: all 0.3s ease !important;
+    border: none !important;
+    font-weight: 600 !important;
+    padding: 8px 20px !important;
+}
+
+.btn-oval:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Карточки с оптимизацией */
+.glass-card {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    transform-origin: center !important;
+    overflow: hidden !important;
+    will-change: transform, box-shadow;
+}
+
+.glass-card:hover {
+    transform: translateY(-5px) scale(1.01) !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Специальный эффект для welcome окна */
+.welcome-card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 25px !important;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2) !important;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.welcome-card:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3) !important;
+    border-color: rgba(102, 126, 234, 0.4) !important;
+}
+
+/* Формы входа/регистрации */
+.form-window {
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    transform-origin: center !important;
+}
+
+.form-window:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Инпут поля */
+.input-field {
+    transition: all 0.3s ease !important;
+    border: 2px solid #dee2e6 !important;
+    border-radius: 15px !important;
+    padding: 12px 20px !important;
+    font-size: 1.1rem !important;
+}
+
+.input-field:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25) !important;
+    transform: scale(1.01) !important;
+}
+
+/* Капча валидация */
+.captcha-valid {
+    border-color: #28a745 !important;
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25) !important;
+}
+
+.captcha-invalid {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.captcha-pending {
+    border-color: #ffc107 !important;
+    box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25) !important;
+}
+
+/* Рамка безопасности */
+.security-frame {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 15px !important;
+    padding: 1.5rem !important;
+    margin-top: 2rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.security-frame:hover {
+    transform: translateY(-3px) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Анимации с оптимизацией */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Конфетти (оптимизированное) */
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    display: none;
+}
+
+.confetti {
+    position: absolute;
+    opacity: 0.8;
+    will-change: transform, opacity;
+}
+
+/* Анимированные числа */
+.animated-number {
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.number-changing {
+    animation: pulseNumber 0.5s ease-in-out;
+    color: #667eea !important;
+}
+
+@keyframes pulseNumber {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Подсказки при наведении */
+.hover-tip {
+    position: relative;
+    cursor: help;
+}
+
+.tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 10000;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.hover-tip:hover .tooltip {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Плавные переходы между страницами */
+.page-transition {
+    animation: pageFadeIn 0.4s ease-out;
+}
+
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Живые графики (упрощенные) */
+.live-chart {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Мигающий индикатор */
+.blink {
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Темная тема (оптимизированная) */
+.dark-mode {
+    color-scheme: dark;
+}
+
+.dark-mode .glass-card,
+.dark-mode .dark-card {
+    background: rgba(26, 32, 44, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #e2e8f0 !important;
+}
+
+.dark-mode .table-dark {
+    background: rgba(45, 55, 72, 0.95) !important;
+    color: #e2e8f0 !important;
+}
+
+.dark-mode .table-dark th,
+.dark-mode .table-dark td {
+    border-color: #4a5568 !important;
+    color: #e2e8f0 !important;
+}
+
+.dark-mode .alert {
+    background: rgba(45, 55, 72, 0.95) !important;
+    border-color: #4a5568 !important;
+    color: #e2e8f0 !important;
+}
+
+.dark-mode .input-field,
+.dark-mode .dark-input {
+    background: rgba(45, 55, 72, 0.9) !important;
+    border-color: #4a5568 !important;
+    color: #e2e8f0 !important;
+}
+
+.dark-mode .input-field:focus {
+    background: rgba(45, 55, 72, 0.95) !important;
+}
+
+.dark-mode .navbar-glass {
+    background: rgba(26, 32, 44, 0.95) !important;
+}
+
+.dark-mode .form-window {
+    background: rgba(30, 41, 59, 0.95) !important;
+}
+
+.dark-mode .security-frame {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-mode .list-group-item {
+    background: rgba(45, 55, 72, 0.9) !important;
+    border-color: #4a5568 !important;
+    color: #e2e8f0 !important;
+}
+
+.dark-mode .badge {
+    background: #4a5568 !important;
+    color: #e2e8f0 !important;
+}
+
+/* Градиентный текст для заголовков */
+.gradient-text {
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800 !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Плавающие элементы */
+.floating {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* Новые анимации */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.6s ease-out forwards;
+}
+
+.slide-in-right {
+    animation: slideInRight 0.6s ease-out forwards;
+}
+
+.scale-in {
+    animation: scaleIn 0.6s ease-out forwards;
+}
+
+/* Эффект волны для кнопок */
+.wave-effect {
+    position: relative;
+    overflow: hidden;
+}
+
+.wave-effect::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+}
+
+.wave-effect:focus:not(:active)::after {
+    animation: wave 0.6s ease-out;
+}
+
+@keyframes wave {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(20, 20);
+        opacity: 0;
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .glass-card:hover {
+        transform: translateY(-3px) !important;
+    }
+    
+    .form-window:hover {
+        transform: scale(1.01) !important;
+    }
+    
+    .security-frame {
+        padding: 1rem !important;
+    }
+    
+    .gradient-text {
+        font-size: 1.8rem !important;
+    }
+}
+
+/* Ленивая загрузка изображений */
+.lazy-load {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.lazy-loaded {
+    opacity: 1;
+}
+
+/* Оптимизация анимаций для мобильных устройств */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Улучшение доступности */
+@media (prefers-contrast: high) {
+    .glass-card {
+        border: 2px solid #000 !important;
+    }
+    
+    .btn-oval {
+        border: 2px solid #000 !important;
+    }
+}
+
+/* Улучшение фокуса для доступности */
+:focus-visible {
+    outline: 3px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Стили для спиннера загрузки */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Стили для индикатора загрузки */
+.loading-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    z-index: 99999;
+    transform: translateX(-100%);
+    animation: loading 2s ease-in-out infinite;
+}
+
+@keyframes loading {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Стили для пульсирующих элементов */
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.auth-hint {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card glass-card scale-in">
+            <div class="card-header text-center">
+                <h3 class="gradient-text"><i class="fas fa-plus-circle me-2"></i> Добавить операцию</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Тип операции:</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="type" id="income" value="income" checked>
+                                <label class="form-check-label btn-oval btn btn-outline-success wave-effect" for="income">
+                                    <i class="fas fa-arrow-up me-1"></i>Доход
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="type" id="expense" value="expense">
+                                <label class="form-check-label btn-oval btn btn-outline-danger wave-effect" for="expense">
+                                    <i class="fas fa-arrow-down me-1"></i>Расход
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Сумма (₽):</label>
+                        <input type="number" step="0.01" class="form-control btn-oval" id="amount" name="amount" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Категория:</label>
+                        <select class="form-select btn-oval" id="category" name="category" required>
+                            <option value="">Выберите категорию...</option>
+                            <option value="Зарплата">Зарплата</option>
+                            <option value="Фриланс">Фриланс</option>
+                            <option value="Подарки">Подарки</option>
+                            <option value="Еда">Еда</option>
+                            <option value="Транспорт">Транспорт</option>
+                            <option value="Развлечения">Развлечения</option>
+                            <option value="Одежда">Одежда</option>
+                            <option value="Жилье">Жилье</option>
+                            <option value="Другое">Другое</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-oval w-100 wave-effect">
+                        <i class="fas fa-check me-2"></i>Добавить
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

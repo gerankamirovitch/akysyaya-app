@@ -1,0 +1,646 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Выбор базовой валюты -->
+    <div class="currency-selector mb-4 glass-card p-3 slide-in-left">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h5><i class="fas fa-exchange-alt me-2"></i>Базовая валюта для сравнения</h5>
+            </div>
+            <div class="col-md-6">
+                <select class="form-select btn-oval" id="baseCurrency">
+                    <option value="USD">USD - Доллар США</option>
+                    <option value="EUR">EUR - Евро</option>
+                    <option value="GBP">GBP - Фунт стерлингов</option>
+                    <option value="RUB" selected>RUB - Российский рубль</option>
+                    <option value="CNY">CNY - Китайский юань</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Уведомления о достижениях -->
+    {% if session.get('new_achievements') %}
+    <div class="alert alert-success alert-dismissible fade show glass-card slide-in-right">
+        <h5><i class="fas fa-trophy me-2"></i>Поздравляем с достижениями!</h5>
+        {% for achievement_amount in session.pop('new_achievements') %}
+            <div class="mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                {{ ACHIEVEMENTS[achievement_amount] }} достигнута! 🎉
+            </div>
+        {% endfor %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <!-- Заголовок с датой -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="gradient-text" style="font-size: 2.5rem; font-weight: 800;">
+                    <i class="fas fa-chart-line me-2"></i>Мой финансовый дашборд
+                </h2>
+                <div class="text-end">
+                    <div id="current-date" class="h5 mb-0 animated-number"></div>
+                    <small id="current-time" class="blink"></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Карточки с статистикой -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card glass-card hover-effect scale-in" style="animation-delay: 0.1s">
+                <div class="card-body text-center">
+                    <i class="fas fa-arrow-up text-success mb-2" style="font-size: 2rem;"></i>
+                    <h5 class="card-title">Доходы</h5>
+                    <p class="card-text h4 text-success animated-number" id="income-value">{{ total_income }} ₽</p>
+                    <small class="text-muted">За текущий месяц</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card glass-card hover-effect scale-in" style="animation-delay: 0.2s">
+                <div class="card-body text-center">
+                    <i class="fas fa-arrow-down text-danger mb-2" style="font-size: 2rem;"></i>
+                    <h5 class="card-title">Расходы</h5>
+                    <p class="card-text h4 text-danger animated-number" id="expenses-value">{{ total_expenses }} ₽</p>
+                    <small class="text-muted">За текущий месяц</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card glass-card hover-effect scale-in" style="animation-delay: 0.3s">
+                <div class="card-body text-center">
+                    <i class="fas fa-balance-scale text-info mb-2" style="font-size: 2rem;"></i>
+                    <h5 class="card-title">Баланс</h5>
+                    <p class="card-text h4 text-info animated-number" id="balance-value">{{ balance }} ₽</p>
+                    <small class="text-muted">Текущий остаток</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card glass-card hover-effect scale-in" style="animation-delay: 0.4s">
+                <div class="card-body text-center">
+                    <i class="fas fa-bullseye text-warning mb-2" style="font-size: 2rem;"></i>
+                    <h5 class="card-title">
+                        Цель: <span id="goal-amount" class="animated-number">{{ session.get('financial_goal', 5000) }}</span> ₽
+                        <i class="fas fa-edit text-muted ms-2" style="cursor:pointer; font-size: 0.8rem;" 
+                           onclick="openGoalModal()" title="Изменить цель"></i>
+                    </h5>
+                    <div class="progress mb-2">
+                        <div id="goal-progress" class="progress-bar bg-warning"></div>
+                    </div>
+                    <small id="goal-progress-text"></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="row">
+        <!-- Левая колонка -->
+        <div class="col-md-8">
+            {% if ai_advice %}
+            <div class="card glass-card mb-4 hover-effect slide-in-left">
+                <div class="card-header">
+                    <h5><i class="fas fa-robot text-primary me-2"></i>AI Финансовый советник</h5>
+                </div>
+                <div class="card-body">
+                    {% for advice in ai_advice %}
+                    <div class="alert alert-info mb-2">
+                        <i class="fas fa-lightbulb me-2"></i>{{ advice }}
+                    </div>
+                    {% endfor %}
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('settings') }}" class="btn btn-outline-primary btn-oval">
+                            <i class="fas fa-cog me-2"></i>Настроить параметры
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Диаграмма расходов -->
+            <div class="card glass-card mb-4 hover-effect scale-in">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie me-2"></i>Траты по категориям</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="expensesChart" style="max-height:350px;"></canvas>
+                    <div class="mt-3 text-muted small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Диаграмма показывает процентное соотношение трат по категориям.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Траты по категориям (список) -->
+            {% if chart_labels and chart_labels|length > 0 %}
+            <div class="card glass-card mb-4 hover-effect slide-in-right">
+                <div class="card-header">
+                    <h5><i class="fas fa-list me-2"></i>Подробности по категориям</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Категория</th>
+                                    <th class="text-end">Сумма</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(chart_labels|length) %}
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-tag text-primary me-2"></i>
+                                        {{ chart_labels[i] }}
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="badge bg-primary rounded-pill animated-number">{{ chart_data[i] }} ₽</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Правая колонка -->
+        <div class="col-md-4">
+            <!-- Быстрые действия -->
+            <div class="card glass-card mb-3 hover-effect scale-in" style="animation-delay: 0.1s">
+                <div class="card-header">
+                    <h5><i class="fas fa-bolt me-2"></i>Быстрые действия</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{{ url_for('add_transaction') }}" class="btn btn-primary btn-oval w-100 mb-2 wave-effect">
+                        <i class="fas fa-plus me-2"></i>Добавить операцию
+                    </a>
+                    <a href="{{ url_for('history') }}" class="btn btn-outline-primary btn-oval w-100 mb-2 wave-effect">
+                        <i class="fas fa-history me-2"></i>Вся история
+                    </a>
+                    <a href="{{ url_for('settings') }}" class="btn btn-outline-secondary btn-oval w-100 mb-2 wave-effect">
+                        <i class="fas fa-cog me-2"></i>Настройки
+                    </a>
+                    <div class="text-center mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-sync-alt me-1"></i>
+                            Обновлено: <span id="last-updated">{{ now.strftime('%H:%M') }}</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Калькулятор -->
+            <div class="card glass-card mb-3 hover-effect scale-in" style="animation-delay: 0.2s">
+                <div class="card-header">
+                    <h5><i class="fas fa-calculator me-2"></i>Калькулятор</h5>
+                </div>
+                <div class="card-body">
+                    <input id="calcInput" class="form-control btn-oval mb-2" placeholder="Например: 12+3*2" />
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-oval wave-effect" id="calcEvalBtn">Посчитать</button>
+                        <button class="btn btn-outline-secondary btn-oval wave-effect" id="calcClearBtn">Очистить</button>
+                    </div>
+                    <div class="mt-3">
+                        <strong>Результат: </strong><span id="calcResult" class="animated-number">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Курсы валют -->
+            <div class="card glass-card mb-3 hover-effect scale-in" style="animation-delay: 0.3s">
+                <div class="card-header">
+                    <h5><i class="fas fa-exchange-alt me-2"></i>Курсы валют (<span id="current-base-currency">RUB</span>)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 mb-2"><span class="currency-rate" data-currency="USD">USD: 1.00</span></div>
+                        <div class="col-6 mb-2"><span class="currency-rate" data-currency="EUR">EUR: {{ "%.2f"|format(currency_rates.EUR) }}</span></div>
+                        <div class="col-6 mb-2"><span class="currency-rate" data-currency="GBP">GBP: {{ "%.2f"|format(currency_rates.GBP) }}</span></div>
+                        <div class="col-6 mb-2"><span class="currency-rate" data-currency="JPY">JPY: {{ "%.0f"|format(currency_rates.JPY) }}</span></div>
+                        <div class="col-6 mb-2"><span class="currency-rate" data-currency="CNY">CNY: {{ "%.2f"|format(currency_rates.CNY) }}</span></div>
+                        <div class="col-6 mb-2"><span class="currency-rate" data-currency="RUB">RUB: {{ "%.2f"|format(currency_rates.RUB) }}</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Криптовалюты -->
+            <div class="card glass-card hover-effect scale-in" style="animation-delay: 0.4s">
+                <div class="card-header">
+                    <h5><i class="fas fa-coins me-2"></i>Криптовалюты (<span id="current-crypto-base">USD</span>)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 mb-2"><span class="crypto-rate" data-crypto="BTC">BTC: ${{ "%.0f"|format(crypto_rates.BTC) }}</span></div>
+                        <div class="col-6 mb-2"><span class="crypto-rate" data-crypto="ETH">ETH: ${{ "%.0f"|format(crypto_rates.ETH) }}</span></div>
+                        <div class="col-6 mb-2"><span class="crypto-rate" data-crypto="BNB">BNB: ${{ "%.0f"|format(crypto_rates.BNB) }}</span></div>
+                        <div class="col-6 mb-2"><span class="crypto-rate" data-crypto="XRP">XRP: ${{ "%.2f"|format(crypto_rates.XRP) }}</span></div>
+                        <div class="col-6 mb-2"><span class="crypto-rate" data-crypto="ADA">ADA: ${{ "%.2f"|format(crypto_rates.ADA) }}</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Выбор темы оформления -->
+            <div class="card glass-card mt-3 hover-effect slide-in-right">
+                <div class="card-header">
+                    <h5><i class="fas fa-palette me-2"></i>Темы оформления</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-2">
+                            <button class="btn btn-outline-primary btn-oval w-100 theme-btn wave-effect" onclick="toggleTheme('neon')">
+                                <i class="fas fa-lightbulb me-2"></i>Неон
+                            </button>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <button class="btn btn-outline-success btn-oval w-100 theme-btn wave-effect" onclick="toggleTheme('pastel')">
+                                <i class="fas fa-cloud me-2"></i>Пастель
+                            </button>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <button class="btn btn-outline-warning btn-oval w-100 theme-btn wave-effect" onclick="toggleTheme('techno')">
+                                <i class="fas fa-microchip me-2"></i>Техно
+                            </button>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <button class="btn btn-outline-info btn-oval w-100 theme-btn wave-effect" onclick="toggleTheme('nature')">
+                                <i class="fas fa-leaf me-2"></i>Природа
+                            </button>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <button class="btn btn-secondary btn-oval w-100 theme-btn wave-effect" onclick="toggleTheme('time-based')">
+                                <i class="fas fa-sun me-2"></i>Авто
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Милый тролльфейс -->
+    <div class="text-center mt-5">
+        <div class="bear-container floating" style="max-width: 200px; margin: 0 auto;">
+            <img src="https://cdn.pixabay.com/photo/2013/07/13/11/44/troll-158371_960_720.png" 
+                 alt="Troll Face" 
+                 class="img-fluid bear-image hover-effect"
+                 style="border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1);"
+                 data-tip="Твой финансовый помощник!">
+            <div class="mt-2">
+                <small class="text-muted">Финансы под контролем! 😎</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для изменения цели -->
+<div class="modal fade" id="goalModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-bullseye me-2"></i>Изменить финансовую цель</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="goalForm" method="POST" action="{{ url_for('update_goal') }}">
+                    <div class="mb-3">
+                        <label for="goalAmount" class="form-label">Новая цель (₽):</label>
+                        <input type="number" class="form-control btn-oval" id="goalAmount" name="goal_amount" 
+                               value="{{ session.get('financial_goal', 5000) }}" min="0" step="100" required>
+                    </div>
+                    <div class="form-text">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Установите реалистичную цель для накоплений. Достижения: 10K, 50K, 100K, 500K, 1M ₽
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-oval" data-bs-dismiss="modal">Отмена</button>
+                <button type="submit" form="goalForm" class="btn btn-primary btn-oval">Сохранить цель</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="app-data" type="application/json">
+{
+  "goalAmount": {{ session.get('financial_goal', 5000)|tojson }},
+  "balance": {{ balance|tojson }},
+  "currencyRates": {{ currency_rates|tojson|safe }},
+  "cryptoRates": {{ crypto_rates|tojson|safe }},
+  "chartLabels": {{ chart_labels|tojson|safe }},
+  "chartData": {{ chart_data|tojson|safe }}
+}
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Инициализация при загрузке
+    document.addEventListener('DOMContentLoaded', function() {
+        const rawData = document.getElementById('app-data').textContent;
+        const data = JSON.parse(rawData);
+        
+        // Обновление даты и времени
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('current-date').textContent = now.toLocaleDateString('ru-RU', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('ru-RU');
+        }
+        
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+        
+        // Обновление курсов валют
+        function updateCurrencyRates(baseCurrency) {
+            const baseRate = data.currencyRates[baseCurrency];
+            
+            document.getElementById('current-base-currency').textContent = baseCurrency;
+            document.getElementById('current-crypto-base').textContent = baseCurrency;
+            
+            // Обновляем валюты
+            document.querySelectorAll('.currency-rate').forEach(el => {
+                const currency = el.getAttribute('data-currency');
+                if (currency === baseCurrency) {
+                    el.textContent = `${currency}: 1.00`;
+                } else {
+                    const value = data.currencyRates[currency] / baseRate;
+                    el.textContent = `${currency}: ${value.toFixed(2)}`;
+                }
+            });
+            
+            // Обновляем криптовалюты
+            document.querySelectorAll('.crypto-rate').forEach(el => {
+                const crypto = el.getAttribute('data-crypto');
+                const value = data.cryptoRates[crypto] / baseRate;
+                el.textContent = `${crypto}: $${value.toFixed(2)}`;
+            });
+        }
+        
+        // Сохранение базовой валюты
+        const savedCurrency = localStorage.getItem('baseCurrency') || 'RUB';
+        document.getElementById('baseCurrency').value = savedCurrency;
+        updateCurrencyRates(savedCurrency);
+        
+        document.getElementById('baseCurrency').addEventListener('change', (e) => {
+            const val = e.target.value;
+            localStorage.setItem('baseCurrency', val);
+            updateCurrencyRates(val);
+        });
+        
+        // Обновление прогресса цели (сохранение в localStorage)
+        const goalAmount = localStorage.getItem('financialGoal') || data.goalAmount;
+        const balanceValue = data.balance;
+        const progress = goalAmount > 0 ? Math.min((balanceValue / goalAmount) * 100, 100) : 0;
+        
+        const progressBar = document.getElementById('goal-progress');
+        const progressText = document.getElementById('goal-progress-text');
+        if (progressBar) {
+            progressBar.style.width = progress.toFixed(0) + '%';
+        }
+        if (progressText) {
+            progressText.textContent = progress.toFixed(0) + '% выполнено';
+        }
+        
+        // Обновляем отображение цели
+        document.getElementById('goal-amount').textContent = goalAmount;
+        document.getElementById('goalAmount').value = goalAmount;
+        
+        // Создание диаграммы расходов
+        const labels = data.chartLabels || [];
+        const values = data.chartData || [];
+        const ctx = document.getElementById('expensesChart');
+        
+        if (ctx) {
+            // Уничтожение существующей диаграммы
+            if (window.expensesChartInstance) {
+                window.expensesChartInstance.destroy();
+            }
+            
+            // Генерация цветовой палитры
+            function generateColors(count) {
+                const colors = [];
+                const hueStep = 360 / Math.max(count, 1);
+                
+                for (let i = 0; i < count; i++) {
+                    const hue = i * hueStep;
+                    colors.push(`hsl(${hue}, 70%, 60%)`);
+                }
+                
+                return colors;
+            }
+            
+            const colors = generateColors(labels.length || 1);
+            
+            // Создание новой диаграммы
+            window.expensesChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors,
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a,b)=>a+b,0);
+                                    const value = context.raw || 0;
+                                    const percent = total ? (value/total*100).toFixed(1) : 0;
+                                    return `${context.label}: ${value} ₽ (${percent}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Калькулятор
+        const calcInput = document.getElementById('calcInput');
+        const calcResult = document.getElementById('calcResult');
+        
+        if (calcInput && calcResult) {
+            document.getElementById('calcEvalBtn').addEventListener('click', () => {
+                try {
+                    const expression = calcInput.value.trim();
+                    if (!expression) { 
+                        calcResult.textContent = '—'; 
+                        return; 
+                    }
+                    
+                    // Безопасная проверка выражения
+                    if (!/^[0-9+\-*/().,\s]+$/.test(expression)) {
+                        calcResult.textContent = 'Ошибка: недопустимые символы';
+                        return;
+                    }
+                    
+                    const safeExpr = expression.replace(/,/g, '.');
+                    const value = Function('"use strict";return (' + safeExpr + ')')();
+                    
+                    // Анимируем результат
+                    const current = parseFloat(calcResult.textContent) || 0;
+                    animateNumber(calcResult, current, value, 500);
+                } catch (e) {
+                    calcResult.textContent = 'Ошибка вычисления';
+                }
+            });
+            
+            document.getElementById('calcClearBtn').addEventListener('click', () => {
+                calcInput.value = '';
+                calcResult.textContent = '—';
+            });
+        }
+        
+        // Открытие модального окна цели
+        window.openGoalModal = function() {
+            const modal = new bootstrap.Modal(document.getElementById('goalModal'));
+            modal.show();
+        };
+        
+        // Обработка формы цели с сохранением в localStorage
+        const goalForm = document.getElementById('goalForm');
+        if (goalForm) {
+            goalForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const goalAmount = document.getElementById('goalAmount').value;
+                
+                // Сохраняем цель в localStorage
+                localStorage.setItem('financialGoal', goalAmount);
+                
+                // Показываем уведомление
+                showNotification('Цель успешно сохранена!', 'success');
+                
+                // Обновляем отображение
+                document.getElementById('goal-amount').textContent = goalAmount;
+                
+                // Пересчитываем прогресс
+                const balanceValue = data.balance;
+                const progress = goalAmount > 0 ? Math.min((balanceValue / goalAmount) * 100, 100) : 0;
+                
+                const progressBar = document.getElementById('goal-progress');
+                const progressText = document.getElementById('goal-progress-text');
+                if (progressBar) {
+                    progressBar.style.width = progress.toFixed(0) + '%';
+                }
+                if (progressText) {
+                    progressText.textContent = progress.toFixed(0) + '% выполнено';
+                }
+                
+                // Закрываем модальное окно
+                const modal = bootstrap.Modal.getInstance(document.getElementById('goalModal'));
+                modal.hide();
+                
+                // Проверяем достижения
+                checkAchievements(parseFloat(goalAmount));
+            });
+        }
+        
+        // Проверка достижений при установке цели
+        function checkAchievements(goalAmount) {
+            const achievements = [10000, 50000, 100000, 500000, 1000000];
+            for (const achievement of achievements) {
+                if (goalAmount >= achievement) {
+                    // Запускаем конфетти при достижении цели
+                    setTimeout(() => {
+                        celebrateAchievement(`🎉 Достигнута цель в ${achievement.toLocaleString()} ₽!`);
+                    }, 500);
+                    break;
+                }
+            }
+        }
+        
+        // Анимация всех чисел на странице
+        setTimeout(() => {
+            document.querySelectorAll('.animated-number').forEach(element => {
+                const text = element.textContent;
+                const number = parseFloat(text.replace(/[^\d.-]/g, '')) || 0;
+                
+                if (!isNaN(number) && number !== 0) {
+                    // Сохраняем оригинальный текст
+                    const originalText = element.textContent;
+                    
+                    // Анимируем только если это число
+                    if (originalText.match(/[\d.,]+/)) {
+                        animateNumber(element, 0, number, 1500);
+                    }
+                }
+            });
+        }, 500);
+        
+        // Автоматическое конфетти при добавлении средств (симуляция)
+        // В реальном приложении это будет вызываться после успешного добавления транзакции
+        setTimeout(() => {
+            // Проверяем, были ли сегодня добавлены средства
+            const lastCelebration = localStorage.getItem('lastCelebration');
+            const today = new Date().toDateString();
+            
+            if (lastCelebration !== today && data.balance > 0) {
+                // Случайное конфетти (1 из 3 шанс)
+                if (Math.random() < 0.33) {
+                    celebrateAchievement('🎉 Отличный день для накоплений!');
+                    localStorage.setItem('lastCelebration', today);
+                }
+            }
+        }, 2000);
+        
+        // Анимация для карточек при скролле
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('scale-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        
+        // Наблюдаем за карточками
+        document.querySelectorAll('.glass-card').forEach(card => {
+            observer.observe(card);
+        });
+    });
+</script>
+{% endblock %}

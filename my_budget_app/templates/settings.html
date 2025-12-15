@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card glass-card scale-in">
+            <div class="card-header text-center">
+                <h3 class="gradient-text"><i class="fas fa-cog me-2"></i>Настройки профиля</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="settingsForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="salary" class="form-label">Ежемесячная зарплата (₽)</label>
+                                <input type="number" step="0.01" class="form-control btn-oval" id="salary" 
+                                       name="salary" value="{{ user_settings.salary if user_settings else '' }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="salary_day" class="form-label">День получения зарплаты</label>
+                                <input type="number" min="1" max="31" class="form-control btn-oval" id="salary_day" 
+                                       name="salary_day" value="{{ user_settings.salary_day if user_settings else 1 }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="rent_expense" class="form-label">Ежемесячная аренда/ипотека (₽)</label>
+                                <input type="number" step="0.01" class="form-control btn-oval" id="rent_expense" 
+                                       name="rent_expense" value="{{ user_settings.rent_expense if user_settings else '' }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="rent_day" class="form-label">День оплаты аренды</label>
+                                <input type="number" min="1" max="31" class="form-control btn-oval" id="rent_day" 
+                                       name="rent_day" value="{{ user_settings.rent_day if user_settings else 1 }}" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email для уведомлений -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email для уведомлений</label>
+                        <input type="email" class="form-control btn-oval" id="email" name="email"
+                               value="{{ user_settings.email if user_settings and user_settings.email else '' }}" placeholder="you@example.com">
+                        <div class="form-text">На этот email будут приходить уведомления о зарплате, аренде и перерасходах.</div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-oval wave-effect">
+                            <i class="fas fa-save me-2"></i>Сохранить настройки
+                        </button>
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-oval ms-2 wave-effect">
+                            <i class="fas fa-arrow-left me-2"></i>Назад
+                        </a>
+                    </div>
+                </form>
+                
+                <div class="mt-4 p-3 info-box rounded glass-card">
+                    <h6><i class="fas fa-info-circle me-2"></i>Как это работает?</h6>
+                    <p class="mb-0 small">AI советник использует эти данные для анализа ваших финансов. 
+                    Он подскажет когда платить за аренду, сколько откладывать и на чем можно сэкономить.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('settingsForm').addEventListener('submit', function(e) {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span class="spinner" style="width: 20px; height: 20px;"></span> Сохранение...';
+        submitBtn.disabled = true;
+        
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 2000);
+    });
+</script>
+{% endblock %}

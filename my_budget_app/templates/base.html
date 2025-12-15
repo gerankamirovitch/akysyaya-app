@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AkysayaAPP - Умное управление финансами</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Particles.js -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js" defer></script>
+    
+    <!-- GSAP для анимаций -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js" defer></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    
+    <!-- Основные стили -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+        
+        /* Оптимизация анимаций */
+        .will-change {
+            will-change: transform, opacity;
+        }
+        
+        /* Улучшение производительности */
+        .hardware-accelerated {
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+        
+        /* Скрытие элементов при загрузке */
+        [data-loading] {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="page-transition">
+    <!-- Контейнер для частиц -->
+    <div id="particles-js"></div>
+    
+    <!-- Контейнер для конфетти -->
+    <div id="confetti-container" class="confetti-container"></div>
+    
+    <!-- Слои для параллакса -->
+    <div class="parallax-layer layer-1"></div>
+    <div class="parallax-layer layer-2"></div>
+    <div class="parallax-layer layer-3"></div>
+    
+    <!-- Навбар (только для авторизованных пользователей) -->
+    {% if session.user_id %}
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-glass">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-wallet me-2 icon-pulse"></i>
+                <strong>AkysayaAPP</strong>
+            </a>
+        
+            <div class="navbar-nav ms-auto align-items-center">
+                <!-- Приветствие -->
+                <span class="navbar-text me-3">
+                    <i class="fas fa-user me-1"></i>Привет, <strong>{{ session.username }}</strong>!
+                </span>
+                
+                <!-- Кнопки -->
+                <a class="nav-link btn-oval btn-outline-light btn-sm me-2" href="{{ url_for('index') }}">
+                    <i class="fas fa-home me-1"></i>Главная
+                </a>
+                
+                <a class="nav-link btn-oval btn-outline-light btn-sm me-2" href="{{ url_for('history') }}">
+                    <i class="fas fa-history me-1"></i>История
+                </a>
+                
+                <a class="nav-link btn-oval btn-outline-light btn-sm me-2" href="{{ url_for('add_transaction') }}">
+                    <i class="fas fa-plus me-1"></i>Добавить
+                </a>
+
+                <!-- Кнопка темы -->
+                <button class="btn btn-oval btn-light btn-sm me-2" onclick="toggleDarkMode()">
+                    <i class="fas fa-moon"></i>
+                </button>
+                
+                <!-- Выход -->
+                <a class="nav-link btn-oval btn-danger btn-sm" href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt me-1"></i>Выйти
+                </a>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Основной контент -->
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show glass-card" role="alert">
+                        <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" defer></script>
+    
+    <!-- Основной JavaScript -->
+    <script>
+        // Основные переменные
+        let currentTheme = 'time-based';
+        let userLevel = localStorage.getItem('userLevel') || 1;
+        let userXP = localStorage.getItem('userXP') || 0;
+        let isPerformingHeavyAnimation = false;
+        
+        // Оптимизированная инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            // Откладываем тяжелые инициализации
+            setTimeout(initLightweightFeatures, 100);
+            setTimeout(initHeavyFeatures, 500);
+            
+            // Восстановление темной темы
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                updateDarkModeIcon();
+            }
+            
+            // Восстановление пользовательской темы
+            const savedTheme = localStorage.getItem('appTheme');
+            if (savedTheme && savedTheme !== 'time-based') {
+                toggleTheme(savedTheme);
+            }
+        });
+        
+        // Легкие функции (выполняются сразу)
+        function initLightweightFeatures() {
+            // 1. Инициализация уровня пользователя
+            initUserLevel();
+            
+            // 2. Восстановление "Запомнить меня"
+            restoreRememberMe();
+            
+            // 3. Инициализация валидации капчи
+            initCaptchaValidation();
+            
+            // 4. Инициализация эффектов наведения
+            initHoverEffects();
+            
+            // 5. Анимация появления элементов
+            animateElements();
+        }
+        
+        // Тяжелые функции (выполняются с задержкой)
+        function initHeavyFeatures() {
+            // 1. Инициализация частиц (если нужно)
+            if (document.getElementById('particles-js')) {
+                initParticles();
+            }
+            
+            // 2. Установка темы времени суток
+            setTimeOfDayTheme();
+            
+            // 3. Инициализация параллакса
+            initParallax();
+        }
+        
+        // Функция для инициализации частиц (оптимизированная)
+        function initParticles() {
+            if (typeof particlesJS !== 'undefined' && !window.particlesInitialized) {
+                // Уменьшаем количество частиц для производительности
+                particlesJS('particles-js', {
+                    particles: {
+                        number: {
+                            value: 40, // Было 80
+                            density: {
+                                enable: true,
+                                value_area: 800
+                            }
+                        },
+                        color: {
+                            value: "#ffffff"
+                        },
+                        shape: {
+                            type: "circle"
+                        },
+                        opacity: {
+                            value: 0.2, // Было 0.3
+                            random: false, // Убираем случайность для производительности
+                            anim: {
+                                enable: false // Отключаем анимацию для производительности
+                            }
+                        },
+                        size: {
+                            value: 2, // Было 3
+                            random: false,
+                            anim: {
+                                enable: false // Отключаем анимацию
+                            }
+                        },
+                        line_linked: {
+                            enable: false, // Отключаем линии для производительности
+                        },
+                        move: {
+                            enable: true,
+                            speed: 1, // Было 2
+                            direction: "none",
+                            random: false,
+                            straight: false,
+                            out_mode: "out",
+                            bounce: false
+                        }
+                    },
+                    interactivity: {
+                        detect_on: "canvas",
+                        events: {
+                            onhover: {
+                                enable: false // Отключаем интерактивность для производительности
+                            },
+                            onclick: {
+                                enable: false
+                            },
+                            resize: true
+                        }
+                    },
+                    retina_detect: false // Отключаем для производительности
+                });
+                window.particlesInitialized = true;
+            }
+        }
+        
+        // Установка темы времени суток
+        function setTimeOfDayTheme() {
+            if (isPerformingHeavyAnimation) return;
+            
+            const hour = new Date().getHours();
+            const body = document.body;
+            
+            // Удаляем предыдущие темы времени суток
+            body.classList.remove('theme-morning', 'theme-day', 'theme-evening', 'theme-night');
+            
+            if (currentTheme === 'time-based') {
+                if (hour >= 5 && hour < 10) {
+                    body.classList.add('theme-morning');
+                } else if (hour >= 10 && hour < 17) {
+                    body.classList.add('theme-day');
+                } else if (hour >= 17 && hour < 21) {
+                    body.classList.add('theme-evening');
+                } else {
+                    body.classList.add('theme-night');
+                }
+            }
+        }
+        
+        // Темная тема (оптимизированная)
+        function toggleDarkMode() {
+            isPerformingHeavyAnimation = true;
+            
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            
+            updateDarkModeIcon();
+            
+            // Применяем темную тему ко всем элементам
+            applyDarkModeToAllElements();
+            
+            setTimeout(() => {
+                isPerformingHeavyAnimation = false;
+            }, 100);
+        }
+        
+        function updateDarkModeIcon() {
+            const icon = document.querySelector('[onclick="toggleDarkMode()"] i');
+            if (icon) {
+                const isDark = document.body.classList.contains('dark-mode');
+                icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            }
+        }
+        
+        // Применение темной темы ко всем элементам
+        function applyDarkModeToAllElements() {
+            const isDark = document.body.classList.contains('dark-mode');
+            
+            // Карточки
+            document.querySelectorAll('.glass-card').forEach(card => {
+                if (isDark) {
+                    card.classList.add('dark-card');
+                } else {
+                    card.classList.remove('dark-card');
+                }
+            });
+            
+            // Таблицы
+            document.querySelectorAll('table').forEach(table => {
+                if (isDark) {
+                    table.classList.add('table-dark');
+                } else {
+                    table.classList.remove('table-dark');
+                }
+            });
+            
+            // Формы
+            document.querySelectorAll('.form-control').forEach(input => {
+                if (isDark) {
+                    input.classList.add('dark-input');
+                } else {
+                    input.classList.remove('dark-input');
+                }
+            });
+        }
+        
+        // Инициализация уровня пользователя
+        function initUserLevel() {
+            updateLevelDisplay();
+        }
+        
+        // Обновление отображения уровня
+        function updateLevelDisplay() {
+            const levelElement = document.getElementById('user-level');
+            const progressBar = document.getElementById('level-progress-bar');
+            
+            if (levelElement) {
+                levelElement.textContent = userLevel;
+            }
+            
+            if (progressBar) {
+                const progress = (userXP % 100);
+                progressBar.style.width = progress + '%';
+            }
+        }
+        
+        // Инициализация параллакса (оптимизированная)
+        function initParallax() {
+            let ticking = false;
+            
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    window.requestAnimationFrame(function() {
+                        const scrolled = window.pageYOffset;
+                        const layers = document.querySelectorAll('.parallax-layer');
+                        
+                        layers.forEach((layer, index) => {
+                            const speed = 0.3 * (index + 1); // Уменьшаем скорость
+                            const yPos = -(scrolled * speed / 20); // Уменьшаем эффект
+                            layer.style.transform = `translateY(${yPos}px)`;
+                        });
+                        
+                        ticking = false;
+                    });
+                    
+                    ticking = true;
+                }
+            });
+        }
+        
+        // Конфетти (оптимизированная версия)
+        window.celebrateAchievement = function(message = '🎉 Поздравляем!') {
+            if (isPerformingHeavyAnimation) return;
+            isPerformingHeavyAnimation = true;
+            
+            const container = document.getElementById('confetti-container');
+            container.style.display = 'block';
+            container.innerHTML = '';
+            
+            const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1'];
+            
+            // Уменьшаем количество конфетти для производительности
+            for (let i = 0; i < 80; i++) { // Было 200
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti hardware-accelerated';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 8 + 3 + 'px';
+                confetti.style.height = Math.random() * 8 + 3 + 'px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                
+                container.appendChild(confetti);
+                
+                // Упрощенная анимация
+                setTimeout(() => {
+                    confetti.style.transform = `translateY(100vh) translateX(${Math.random() * 100 - 50}px) rotate(${Math.random() * 360}deg)`;
+                    confetti.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        if (confetti.parentNode) {
+                            confetti.remove();
+                        }
+                    }, 3000);
+                }, Math.random() * 500);
+            }
+            
+            // Показываем сообщение
+            if (message) {
+                showNotification(message, 'success');
+            }
+            
+            // Скрываем контейнер через 3 секунды
+            setTimeout(() => {
+                container.style.display = 'none';
+                container.innerHTML = '';
+                isPerformingHeavyAnimation = false;
+            }, 3000);
+        };
+        
+        // Смена темы оформления
+        window.toggleTheme = function(themeName) {
+            if (isPerformingHeavyAnimation) return;
+            isPerformingHeavyAnimation = true;
+            
+            const body = document.body;
+            const themes = ['morning', 'day', 'evening', 'night', 'neon', 'pastel', 'techno', 'nature'];
+            
+            // Удаляем все темы
+            themes.forEach(theme => body.classList.remove(`theme-${theme}`));
+            
+            if (themeName) {
+                currentTheme = themeName;
+                if (themeName === 'time-based') {
+                    setTimeOfDayTheme();
+                } else {
+                    body.classList.add(`theme-${themeName}`);
+                }
+                localStorage.setItem('appTheme', themeName);
+                
+                // Показываем уведомление
+                const themeNames = {
+                    'time-based': 'Авто (время суток)',
+                    'neon': 'Неоновая',
+                    'pastel': 'Пастельная',
+                    'techno': 'Техно',
+                    'nature': 'Природа'
+                };
+                showNotification(`Тема изменена: ${themeNames[themeName] || themeName}`, 'info');
+            }
+            
+            setTimeout(() => {
+                isPerformingHeavyAnimation = false;
+            }, 100);
+        };
+        
+        // Оптимизированная анимация чисел
+        window.animateNumber = function(element, start, end, duration = 1000) {
+            if (!element || isPerformingHeavyAnimation) return;
+            
+            element.classList.add('number-changing');
+            const startTime = Date.now();
+            
+            const update = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                
+                // Используем requestAnimationFrame для плавности
+                element.textContent = value.toLocaleString();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    setTimeout(() => {
+                        element.classList.remove('number-changing');
+                    }, 300);
+                }
+            };
+            
+            requestAnimationFrame(update);
+        };
+        
+        // Валидация капчи
+        function initCaptchaValidation() {
+            const captchaInputs = document.querySelectorAll('input[name="captcha"]');
+            
+            captchaInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const value = this.value.trim();
+                    
+                    this.classList.remove('captcha-valid', 'captcha-invalid', 'captcha-pending');
+                    
+                    if (value === '') {
+                        this.classList.add('captcha-pending');
+                    } else if (this.form.id === 'loginForm' && value === '4') {
+                        this.classList.add('captcha-valid');
+                    } else if (this.form.id === 'registerForm' && value === '7') {
+                        this.classList.add('captcha-valid');
+                    } else {
+                        this.classList.add('captcha-invalid');
+                    }
+                });
+            });
+        }
+        
+        // Восстановление "Запомнить меня"
+        function restoreRememberMe() {
+            const rememberMe = localStorage.getItem('rememberMe');
+            const username = localStorage.getItem('rememberedUsername');
+            
+            if (rememberMe === 'true' && username) {
+                const usernameInput = document.querySelector('input[name="username"]');
+                const rememberCheckbox = document.querySelector('input[name="remember"]');
+                
+                if (usernameInput) {
+                    usernameInput.value = username;
+                }
+                if (rememberCheckbox) {
+                    rememberCheckbox.checked = true;
+                }
+            }
+        }
+        
+        // Сохранение "Запомнить меня"
+        window.saveRememberMe = function() {
+            const rememberCheckbox = document.querySelector('input[name="remember"]');
+            const usernameInput = document.querySelector('input[name="username"]');
+            
+            if (rememberCheckbox && rememberCheckbox.checked && usernameInput) {
+                localStorage.setItem('rememberMe', 'true');
+                localStorage.setItem('rememberedUsername', usernameInput.value);
+            } else {
+                localStorage.removeItem('rememberMe');
+                localStorage.removeItem('rememberedUsername');
+            }
+        };
+        
+        // Инициализация эффектов наведения
+        function initHoverEffects() {
+            // Добавляем tooltips
+            document.querySelectorAll('[data-tip]').forEach(element => {
+                const tip = element.getAttribute('data-tip');
+                if (tip) {
+                    element.classList.add('hover-tip');
+                    
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip';
+                    tooltip.textContent = tip;
+                    element.appendChild(tooltip);
+                }
+            });
+            
+            // Эффект увеличения окон (упрощенный)
+            document.querySelectorAll('.form-window').forEach(window => {
+                window.addEventListener('mouseenter', function() {
+                    if (!isPerformingHeavyAnimation) {
+                        this.style.transform = 'scale(1.02)';
+                    }
+                });
+                
+                window.addEventListener('mouseleave', function() {
+                    if (!isPerformingHeavyAnimation) {
+                        this.style.transform = 'scale(1)';
+                    }
+                });
+            });
+        }
+        
+        // Анимация элементов (оптимизированная)
+        function animateElements() {
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, index * 50); // Уменьшаем задержку
+            });
+        }
+        
+        // Показать уведомление (оптимизированное)
+        window.showNotification = function(message, type = 'info') {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show glass-card hardware-accelerated`;
+            alert.style.position = 'fixed';
+            alert.style.top = '20px';
+            alert.style.right = '20px';
+            alert.style.zIndex = '10000';
+            alert.style.minWidth = '300px';
+            alert.style.maxWidth = '400px';
+            alert.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+            `;
+            
+            document.body.appendChild(alert);
+            
+            // Автоматическое скрытие
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.classList.remove('show');
+                    setTimeout(() => alert.remove(), 300);
+                }
+            }, 3000); // Уменьшаем время показа
+        };
+        
+        // Создание живого графика (оптимизированное)
+        window.createLiveChart = function(canvasId, type = 'line', data, options = {}) {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return null;
+            
+            const defaultOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 800, // Уменьшаем длительность
+                    easing: 'easeOutQuad'
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255,255,255,0.05)' // Уменьшаем прозрачность
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255,255,255,0.05)'
+                        }
+                    }
+                }
+            };
+            
+            const mergedOptions = { ...defaultOptions, ...options };
+            
+            return new Chart(ctx, {
+                type: type,
+                data: data,
+                options: mergedOptions
+            });
+        };
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

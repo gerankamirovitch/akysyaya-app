@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="container">
+        <!-- ЗАГОЛОВОК С БЕЗОПАСНОСТЬЮ -->
+        <div class="security-header mb-5">
+            <div class="text-center">
+                <h1 class="display-4 fw-bold text-white mb-3">
+                    <i class="fas fa-sign-in-alt me-3 floating"></i>Вход в аккаунт
+                </h1>
+                <p class="lead text-light fs-4">
+                    Войдите в свой аккаунт для управления финансами
+                </p>
+                
+                <!-- Безопасность -->
+                <div class="security-badge mt-4">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    <span>Ваши данные защищены шифрованием банковского уровня</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ОСНОВНАЯ ФОРМА -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="card border-0 shadow-lg login-card form-window" style="border-radius: 25px; overflow: hidden;">
+                    <div class="card-body p-5">
+                        <form method="POST" id="loginForm">
+                            <!-- Имя пользователя -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold fs-5 mb-3">
+                                    <i class="fas fa-user me-2"></i>Имя пользователя
+                                </label>
+                                <input type="text" 
+                                       class="form-control form-control-lg py-3 px-4 input-field" 
+                                       name="username" 
+                                       placeholder="Введите ваше имя пользователя"
+                                       style="border-radius: 15px; font-size: 1.1rem;"
+                                       required>
+                            </div>
+                            
+                            <!-- Пароль -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold fs-5 mb-3">
+                                    <i class="fas fa-lock me-2"></i>Пароль
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" 
+                                           class="form-control form-control-lg py-3 px-4 input-field" 
+                                           name="password" 
+                                           id="password"
+                                           placeholder="Введите ваш пароль"
+                                           style="border-radius: 15px 0 0 15px; font-size: 1.1rem;"
+                                           required>
+                                    <button class="btn btn-outline-secondary toggle-password-btn" 
+                                            type="button" 
+                                            id="togglePassword"
+                                            style="border-radius: 0 15px 15px 0; padding-left: 20px; padding-right: 20px; border-left: 0;">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Запомнить меня -->
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" 
+                                           type="checkbox" 
+                                           id="rememberMe" 
+                                           name="remember"
+                                           style="width: 20px; height: 20px;">
+                                    <label class="form-check-label ms-2 fs-5" for="rememberMe">
+                                        Запомнить меня на этом устройстве
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Капча -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold fs-5 mb-3">
+                                    <i class="fas fa-robot me-2"></i>Подтвердите что вы человек
+                                </label>
+                                <p class="fs-4 mb-3">Сколько будет 2 + 2?</p>
+                                <input type="number" 
+                                       class="form-control form-control-lg py-3 px-4 text-center fw-bold input-field" 
+                                       name="captcha" 
+                                       placeholder="Введите ответ"
+                                       style="border-radius: 15px; font-size: 1.2rem; max-width: 200px; margin: 0 auto;"
+                                       required>
+                            </div>
+                            
+                            <!-- Кнопка входа -->
+                            <div class="d-grid gap-2 mb-4">
+                                <button type="submit" 
+                                        class="btn btn-primary btn-lg py-3 fs-4 fw-bold login-btn wave-effect"
+                                        style="border-radius: 15px;"
+                                        onclick="saveRememberMe()">
+                                    <i class="fas fa-sign-in-alt me-3"></i>Войти в аккаунт
+                                </button>
+                            </div>
+                            
+                            <!-- Разделитель -->
+                            <div class="position-relative my-5">
+                                <hr class="w-100" style="border-color: #dee2e6;">
+                                <span class="position-absolute top-50 start-50 translate-middle px-4 fs-5 text-muted bg-transparent">
+                                    Или
+                                </span>
+                            </div>
+                            
+                            <!-- Ссылка на регистрацию -->
+                            <div class="text-center">
+                                <p class="fs-4 mb-3">Ещё нет аккаунта?</p>
+                                <a href="{{ url_for('register') }}" 
+                                   class="btn btn-outline-primary btn-lg py-3 fs-4 fw-bold w-100 register-link wave-effect"
+                                   style="border-radius: 15px;">
+                                    <i class="fas fa-user-plus me-3"></i>Создать новый аккаунт
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ О БЕЗОПАСНОСТИ -->
+                <div class="text-center mt-5 pt-4 security-frame">
+                    <div class="row">
+                        <div class="col-4">
+                            <i class="fas fa-lock text-success fs-2 mb-2"></i>
+                            <h6 class="mb-1">Шифрование</h6>
+                            <small>Банковский уровень</small>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-shield-alt text-primary fs-2 mb-2"></i>
+                            <h6 class="mb-1">Безопасность</h6>
+                            <small>GDPR стандарт</small>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-user-shield text-warning fs-2 mb-2"></i>
+                            <h6 class="mb-1">Конфиденциальность</h6>
+                            <small>Данные защищены</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Специфичные стили для страницы входа */
+    .security-header {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 3rem 0;
+        text-align: center;
+        border-radius: 0 0 25px 25px;
+        margin-top: -1.5rem;
+        margin-left: -1.5rem;
+        margin-right: -1.5rem;
+    }
+    
+    .security-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 12px 25px;
+        border-radius: 50px;
+        color: white;
+        font-size: 1.1rem;
+    }
+    
+    .login-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 2px solid transparent;
+        margin-top: 2rem;
+    }
+    
+    .login-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+        border-color: rgba(102, 126, 234, 0.3);
+    }
+    
+    .login-btn {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .login-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .register-link {
+        transition: all 0.3s ease;
+        border-width: 2px;
+    }
+    
+    .register-link:hover {
+        transform: translateY(-3px);
+        background: #667eea !important;
+        color: white !important;
+    }
+    
+    /* Темная тема */
+    .dark-mode .login-card {
+        background: rgba(30, 41, 59, 0.95);
+    }
+    
+    .dark-mode .form-check-label {
+        color: #f1f5f9 !important;
+    }
+    
+    .dark-mode .text-dark {
+        color: #f1f5f9 !important;
+    }
+    
+    .dark-mode .form-label {
+        color: #f1f5f9 !important;
+    }
+    
+    .dark-mode .security-header {
+        background: rgba(0, 0, 0, 0.2);
+    }
+    
+    .dark-mode .security-badge {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    @media (max-width: 768px) {
+        .security-header {
+            padding: 2rem 0;
+        }
+        
+        .display-4 {
+            font-size: 2.5rem;
+        }
+        
+        .lead {
+            font-size: 1.2rem;
+        }
+        
+        .security-badge {
+            font-size: 1rem;
+            padding: 10px 20px;
+        }
+        
+        .login-card:hover {
+            transform: scale(1.01);
+        }
+    }
+</style>
+
+{% block scripts %}
+<script>
+    // Показать/скрыть пароль
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('password');
+        const icon = this.querySelector('i');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.className = 'fas fa-eye-slash';
+        } else {
+            passwordInput.type = 'password';
+            icon.className = 'fas fa-eye';
+        }
+    });
+    
+    // Проверка капчи при вводе
+    document.querySelector('input[name="captcha"]').addEventListener('input', function() {
+        const value = this.value.trim();
+        this.classList.remove('captcha-valid', 'captcha-invalid', 'captcha-pending');
+        
+        if (value === '') {
+            this.classList.add('captcha-pending');
+        } else if (value === '4') {
+            this.classList.add('captcha-valid');
+        } else {
+            this.classList.add('captcha-invalid');
+        }
+    });
+    
+    // Проверка формы перед отправкой
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const captcha = document.querySelector('input[name="captcha"]').value;
+        
+        // Проверка капчи
+        if (captcha !== '4') {
+            e.preventDefault();
+            showNotification('Неверный ответ капчи! Ответ должен быть числом "4".', 'error');
+            
+            // Анимация неправильного ответа
+            const captchaInput = document.querySelector('input[name="captcha"]');
+            captchaInput.classList.add('captcha-invalid');
+            
+            return false;
+        }
+        
+        // Сохраняем "Запомнить меня"
+        saveRememberMe();
+        
+        // Показываем анимацию загрузки
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span class="spinner" style="width: 20px; height: 20px;"></span> Вход...';
+        submitBtn.disabled = true;
+        
+        // Восстанавливаем кнопку через 3 секунды (на случай ошибки)
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 3000);
+    });
+    
+    // Анимация при наведении на поля
+    document.querySelectorAll('.input-field').forEach(input => {
+        input.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+        });
+        
+        input.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}
